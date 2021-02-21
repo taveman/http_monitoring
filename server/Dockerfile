@@ -6,9 +6,10 @@ RUN apt-get update -y
 
 WORKDIR /app
 
-COPY ./requirements.txt ./requirements.txt
+COPY ./server/requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
 RUN export PYTHONPATH="$PYTHONPATH:/app"
 
-ADD ./app .
+ADD ./server/app .
+ADD ./common /app/common

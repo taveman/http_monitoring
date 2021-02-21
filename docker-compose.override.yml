@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  monitoring:
+    volumes:
+      - './monitoring/app:/app'
+      - './common:/app/common'
+
+
+  server:
+    volumes:
+      - './server/app:/app'
+      - './common:/app/common'
