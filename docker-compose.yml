@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+
+  db:
+    image: monitoring_db:latest
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    hostname: db
+    env_file:
+      - ./db/.env
+    volumes:
+      - monitoring_pg_data:/var/lib/postgresql/data
+    networks:
+      - monitoring_network
+
+  monitoring:
+    image: monitoring_client:latest
+    hostname: client
+    build:
+      context: ./monitoring
+      dockerfile: Dockerfile
+    command: bash -c "while !</dev/tcp/db/5432; do sleep 1; done; python3 main.py"
+    env_file:
+      - ./monitoring/.env
+    networks:
+      - monitoring_network
+    depends_on:
+      - db
+
+  server:
+    image: monitoring_server:latest
+    hostname: server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    command: bash -c "python3 main.py"
+    networks:
+      - monitoring_network
+    env_file:
+      - ./server/.env
+
+networks:
+  monitoring_network:
+
+volumes:
+  monitoring_pg_data:
