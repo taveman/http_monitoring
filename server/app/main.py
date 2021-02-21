@@ -1,6 +1,9 @@
 """Application Entry Point"""
-import time
 import logging
+import asyncio
+import random
+
+from fastapi import FastAPI, status, Form
 
 from common.loggers.logger import init_logger
 
@@ -9,7 +12,28 @@ init_logger()
 logger = logging.getLogger('monitoring')
 
 
-if __name__ == '__main__':
-    while 1:
-        logger.info('I am up and running')
-        time.sleep(2)
+app = FastAPI()
+
+
+@app.get('/metrics/{metric_id}')
+async def all_urls():
+    metric_to_return = random.randint(0, 10000)
+    await asyncio.sleep(metric_to_return / 1000)
+
+    should_be_broken = random.choice([True, False])
+    if should_be_broken:
+        raise status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    return metric_to_return
+
+
+@app.post('/write-metric')
+async def write_metrics(path: str = Form(...), metric: int = Form(...)):
+    logger.debug('%s: got metric for path: %s, metric: %s', 'write_metrics', path, metric)
+    return status.HTTP_200_OK
+
+
+@app.post('/switch-service')
+async def switch_service(path: str = Form(...), status_code: int = Form(...)):
+    logger.debug('%s: got metric for path: %s, metric: %s', 'write_metrics', path, status_code)
+    return status.HTTP_200_OK

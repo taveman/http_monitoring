@@ -1,5 +1,7 @@
 aiohttp==3.7.3
+aiopg==1.1.0
 async-timeout==3.0.1
+asyncstdlib==3.9.0
 attrs==20.3.0
 chardet==3.0.4
 idna==3.1
@@ -7,6 +9,7 @@ iniconfig==1.1.1
 multidict==5.1.0
 packaging==20.9
 pluggy==0.13.1
+psycopg2-binary==2.8.6
 py==1.10.0
 pydantic==1.7.3
 pyparsing==2.4.7

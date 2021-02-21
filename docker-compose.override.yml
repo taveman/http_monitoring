@@ -2,6 +2,10 @@ version: '3'
 
 services:
 
+  db:
+    ports:
+      - '0.0.0.0:8432:5432'
+
   monitoring:
     volumes:
       - './monitoring/app:/app'
@@ -12,3 +16,5 @@ services:
     volumes:
       - './server/app:/app'
       - './common:/app/common'
+    ports:
+      - '0.0.0.0:8000:8000'

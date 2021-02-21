@@ -1,4 +1,6 @@
 import logging
+from datetime import datetime
+from functools import wraps
 
 from models import ServiceState, State
 from repositories.abstract import MonitoringRepositoryAbstract
@@ -8,6 +10,26 @@ from communicators.abstract import ServiceCommunicatorAbstract
 logger = logging.getLogger('monitoring')
 
 
+def limiter(fn):
+    """Limits requests so they do not run in a less than 1 second interval"""
+    all_paths = {}
+
+    @wraps(fn)
+    async def wrapper(path, *args, **kwargs):
+        last_run_time = all_paths.get(path)
+        current_time = datetime.utcnow().timestamp()
+
+        # if time passed less than 1 second, skip the decorated function call
+        if last_run_time and current_time - last_run_time < 1:
+            return
+
+        all_paths[path] = current_time
+        return await fn(path, *args, **kwargs)
+
+    return wrapper
+
+
+@limiter
 async def update_metrics(path: str,
                          monitoring_repo: MonitoringRepositoryAbstract,
                          service: ServiceCommunicatorAbstract):
@@ -26,6 +48,7 @@ async def update_metrics(path: str,
                                           status_code=service_response.status_code)
 
         if service_response.status_code != 200:
+            logger.debug('update_metrics: path %s has error: %s', path, service_response.status_code)
             current_path_state.state = State.FAILED
 
         else:

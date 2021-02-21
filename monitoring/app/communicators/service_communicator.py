@@ -57,7 +57,7 @@ class ServiceCommunicator(ServiceCommunicatorAbstract):
                          self.__class__.__name__, status_code, path)
 
             async with aiohttp.ClientSession() as session:
-                response = await session.post(url=self._switch_path, data={'path': path, 'code': status_code})
+                response = await session.post(url=self._switch_path, data={'path': path, 'status_code': status_code})
                 return ServiceResponse(path=path, status_code=response.status)
 
         except Exception as err:
