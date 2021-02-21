@@ -12,19 +12,32 @@ logger = logging.getLogger('monitoring')
 
 def limiter(fn):
     """Limits requests so they do not run in a less than 1 second interval"""
-    all_paths = {}
+    paths_request_times = {}
+    paths_in_progress = {}
 
     @wraps(fn)
     async def wrapper(path, *args, **kwargs):
-        last_run_time = all_paths.get(path)
+
+        # if request for path is in progress - skip it for a while
+        if paths_in_progress.get(path):
+            return
+
+        last_run_time = paths_request_times.get(path)
         current_time = datetime.utcnow().timestamp()
 
         # if time passed less than 1 second, skip the decorated function call
         if last_run_time and current_time - last_run_time < 1:
             return
 
-        all_paths[path] = current_time
-        return await fn(path, *args, **kwargs)
+        # lock path so no one else can call it while it is in progress
+        paths_in_progress[path] = True
+        paths_request_times[path] = current_time
+
+        result = await fn(path, *args, **kwargs)
+
+        # release the path
+        paths_in_progress[path] = False
+        return result
 
     return wrapper
 

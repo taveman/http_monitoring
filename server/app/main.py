@@ -19,7 +19,6 @@ app = FastAPI()
 async def all_urls():
     metric_to_return = random.randint(0, 10000)
     await asyncio.sleep(metric_to_return / 1000)
-
     should_be_broken = random.choice([True, False])
     if should_be_broken:
         raise status.HTTP_500_INTERNAL_SERVER_ERROR
