@@ -28,11 +28,11 @@ async def all_urls():
 
 @app.post('/write-metric')
 async def write_metrics(path: str = Form(...), metric: int = Form(...)):
-    logger.debug('%s: got metric for path: %s, metric: %s', 'write_metrics', path, metric)
+    logger.debug('write_metrics: got metric for path: %s, metric: %s', path, metric)
     return status.HTTP_200_OK
 
 
 @app.post('/switch-service')
 async def switch_service(path: str = Form(...), status_code: int = Form(...)):
-    logger.debug('%s: got metric for path: %s, metric: %s', 'write_metrics', path, status_code)
+    logger.debug('switch-service: got change state for path: %s, state: %s', path, status_code)
     return status.HTTP_200_OK
